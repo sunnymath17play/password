@@ -126,15 +126,23 @@ input.n{width:90px;font-size:20px;padding:6px 10px;border-radius:12px;border:2px
 .reveal .eq.roll{color:#c9c2ad}
 .reveal .note{font-size:30px;font-weight:900;color:var(--green2);min-height:44px}
 
-/* 爆炸 */
-.boom{flex-direction:column;background:radial-gradient(circle,#fff3b0 0%,#ffb340 30%,#e5484d 65%,#5a1010 100%);color:#fff;text-align:center}
-.boom .bang{font-size:min(30vw,260px);animation:bang .6s cubic-bezier(.2,2,.4,1)}
-@keyframes bang{0%{transform:scale(0) rotate(-30deg)}100%{transform:scale(1) rotate(0)}}
-.boom .t1{font-size:clamp(40px,6vw,80px);font-weight:900;text-shadow:0 4px 0 rgba(0,0,0,.25)}
-.boom .t2{font-size:clamp(26px,3.6vw,46px);font-weight:900;margin-top:6px}
-.boom .t2 .num{font-size:1.5em;color:#fff3b0}
-.boom .btns{margin-top:24px;display:flex;gap:14px}
-.boom .btns button{font-size:24px;font-weight:900;padding:12px 30px;border-radius:999px;background:#fff;color:var(--red)}
+/* 猜中＝勝利 */
+.boom{flex-direction:column;background:radial-gradient(circle,#fffdf0 0%,#ffeeb0 50%,#ffcf5a 100%);text-align:center;overflow:hidden}
+.boom .t1{font-size:clamp(44px,6.5vw,92px);font-weight:900;color:var(--green);text-shadow:0 4px 0 #fff;animation:bang .6s cubic-bezier(.2,2,.4,1)}
+@keyframes bang{0%{transform:scale(0) rotate(-12deg)}100%{transform:scale(1) rotate(0)}}
+.boom .t2{font-size:clamp(24px,3.2vw,42px);font-weight:900;color:var(--ink);margin-top:4px}
+.boom .t2 .num{font-size:1.5em;color:var(--red)}
+.boom .btns{margin-top:18px;display:flex;gap:14px}
+.boom .btns button{font-size:26px;font-weight:900;padding:12px 36px;border-radius:999px;background:var(--green);color:#fff;box-shadow:0 5px 0 #163627}
+.dancers{position:relative;z-index:2;display:flex;gap:4vw;align-items:flex-end;justify-content:center;margin:10px 0}
+.dancer{display:flex;justify-content:center;align-items:flex-end;animation:dance .5s infinite alternate ease-in-out;transform-origin:50% 100%}
+.dancer:nth-child(even){animation-delay:-.25s}
+.dancer img{height:min(36vh,18vw);display:block}
+.dancer .emo{font-size:min(16vh,140px);line-height:1}
+@keyframes dance{0%{transform:translateY(0) rotate(-7deg) scaleY(1)}100%{transform:translateY(-9%) rotate(7deg) scaleY(1.04)}}
+.win .dancer img{height:min(28vh,15vw)}
+.confetti{position:fixed;top:-60px;font-size:38px;pointer-events:none;z-index:1;animation:drop linear forwards}
+@keyframes drop{to{transform:translate(var(--x),110vh) rotate(var(--rot))}}
 .shake{animation:shake .6s}
 @keyframes shake{10%,50%,90%{transform:translate(-14px,6px)}30%,70%{transform:translate(14px,-6px)}}
 .piece{position:fixed;font-size:40px;pointer-events:none;z-index:60;animation:fly 1.4s forwards ease-out}
@@ -142,7 +150,7 @@ input.n{width:90px;font-size:20px;padding:6px 10px;border-radius:12px;border:2px
 
 /* 勝利 */
 .win{flex-direction:column;background:radial-gradient(circle,#fffbe6,#f7e6a8);text-align:center}
-.win img{height:46vh}
+.win > img{height:34vh}
 .win .t1{font-size:clamp(44px,7vw,90px);font-weight:900;color:var(--green)}
 
 /* 浩克挑戰 */
@@ -187,6 +195,9 @@ input.n{width:90px;font-size:20px;padding:6px 10px;border-radius:12px;border:2px
   .hk{grid-template-columns:1fr;height:auto}
   .hk .who img{height:30vh}
   .hulk{overflow:auto;align-items:flex-start}
+  .dancers{flex-wrap:wrap;gap:4vw 8vw;max-width:94vw}
+  .dancer img,.win .dancer img{height:min(20vh,38vw)}
+  .win > img{height:22vh}
 }
 </style>
 </head>
@@ -255,7 +266,7 @@ input.n{width:90px;font-size:20px;padding:6px 10px;border-radius:12px;border:2px
     <div class="desc" id="modeDesc"></div>
     <div class="row" id="ruleRow"><span class="lab">算式規則</span><div class="seg" id="sRule"></div></div>
     <div class="row"><span class="lab">分隊</span><div class="seg" id="sTeams"></div></div>
-    <div class="row" id="heartRow"><span class="lab">每隊幾條命</span><div class="seg" id="sHearts"></div></div>
+    <div class="row" id="heartRow"><span class="lab">幾顆星獲勝</span><div class="seg" id="sHearts"></div></div>
     <div class="row"><span class="lab">照座號輪流</span><div class="seg" id="sSeat"></div>
       <input class="n num" id="sSeatN" type="number" min="2" max="60" placeholder="人數" /></div>
     <button class="start" id="startBtn">開始！</button>
@@ -269,10 +280,10 @@ input.n{width:90px;font-size:20px;padding:6px 10px;border-radius:12px;border:2px
   <div class="note" id="revNote"></div>
 </div>
 
-<!-- 爆炸 -->
+<!-- 猜中＝勝利 -->
 <div class="ov boom" id="boomOv">
-  <div class="bang">💥</div>
-  <div class="t1" id="boomT1">碰！</div>
+  <div class="t1" id="boomT1"></div>
+  <div class="dancers" id="dancers1"></div>
   <div class="t2" id="boomT2"></div>
   <div class="btns"><button id="againBtn">下一局 ▶</button></div>
 </div>
@@ -281,6 +292,7 @@ input.n{width:90px;font-size:20px;padding:6px 10px;border-radius:12px;border:2px
 <div class="ov win" id="winOv">
   <img src="img/hulk_flex.png" alt="" />
   <div class="t1" id="winT"></div>
+  <div class="dancers" id="dancers2"></div>
   <div class="btns" style="margin-top:16px"><button class="start" id="winBtn" style="margin:0">再玩一次</button></div>
 </div>
 
@@ -295,7 +307,7 @@ input.n{width:90px;font-size:20px;padding:6px 10px;border-radius:12px;border:2px
 <script>
 // ================= 設定 =================
 const $ = id => document.getElementById(id);
-const DEF = { max: 100, mode: 'num', rule: 'any', teams: 0, hearts: 3, seat: 0 };
+const DEF = { max: 100, mode: 'num', rule: 'any', teams: 0, goal: 3, seat: 0 };
 let S = Object.assign({}, DEF, JSON.parse(localStorage.getItem('pw_settings') || '{}'));
 let soundOn = localStorage.getItem('pw_sound') !== '0';
 const TEAM_COLORS = ['#e5484d', '#2f80ed', '#27ae60', '#9b51e0'];
@@ -322,7 +334,6 @@ const SFX = {
   cut: () => { noise(.35, .35, 'highpass', 600, 4000); tone(500, .25, 'triangle', .15, 0, 180); },
   bad: () => { tone(220, .18, 'square', .12); tone(180, .25, 'square', .12, .15); },
   beat: () => { tone(70, .12, 'sine', .7); tone(60, .14, 'sine', .55, .16); },
-  boom: () => { noise(1.6, 1, 'lowpass', 2500, 40); tone(120, 1.2, 'sine', .9, 0, 30); },
   roll: (i) => tone(400 + i * 60, .05, 'square', .06),
   ding: () => { tone(880, .25, 'triangle', .25); tone(1320, .35, 'triangle', .2, .1); },
   win: () => [523, 659, 784, 1047].forEach((f, i) => tone(f, .35, 'triangle', .25, i * .14)),
@@ -332,10 +343,9 @@ const SFX = {
 // ================= 遊戲狀態 =================
 let G = {};
 function newGame(keepTeams) {
-  const teams = keepTeams && G.teams ? G.teams : Array.from({ length: S.teams }, (_, i) => ({ name: `第${i + 1}隊`, hearts: S.hearts, c: TEAM_COLORS[i] }));
+  const teams = keepTeams && G.teams ? G.teams : Array.from({ length: S.teams }, (_, i) => ({ name: `第${i + 1}隊`, stars: 0, c: TEAM_COLORS[i] }));
   G = { lo: 1, hi: S.max, secret: 1 + Math.floor(Math.random() * S.max), teams, turn: keepTeams && G.turn != null ? G.turn : 0,
         seat: keepTeams && G.seat ? G.seat : 1, hist: [], tries: 0, over: false };
-  if (G.teams.length && G.teams[G.turn] && G.teams[G.turn].hearts <= 0) nextTurn(true);
   input = ''; drawAll(); setMsg(S.mode === 'expr' ? '用算式來猜密碼！' : '猜一個數字！', 'hint');
   stopBeat();
 }
@@ -351,9 +361,9 @@ function drawTeams() {
   const t = $('teams'); t.innerHTML = '';
   G.teams.forEach((tm, i) => {
     const d = document.createElement('div');
-    d.className = 'team' + (i === G.turn ? ' on' : '') + (tm.hearts <= 0 ? ' out' : '');
+    d.className = 'team' + (i === G.turn ? ' on' : '');
     d.style.setProperty('--c', tm.c);
-    d.innerHTML = `<span class="dot"></span>${tm.name}<span class="hearts">${'❤️'.repeat(Math.max(tm.hearts, 0))}${'🖤'.repeat(Math.max(S.hearts - tm.hearts, 0))}</span>`;
+    d.innerHTML = `<span class="dot"></span>${tm.name}<span class="hearts">${'⭐'.repeat(tm.stars)}<span style="opacity:.3">${'☆'.repeat(Math.max(S.goal - tm.stars, 0))}</span></span>`;
     t.appendChild(d);
   });
   const parts = [];
@@ -468,7 +478,7 @@ async function guess() {
     if (v < G.lo || v > G.hi) return shakeScreen(`要猜 ${G.lo}～${G.hi} 之間的數字喔！`);
   }
   input = ''; G.tries++;
-  if (v === G.secret) return explode(label);
+  if (v === G.secret) return victory(label);
   const big = v > G.secret; const oldLo = G.lo, oldHi = G.hi;
   if (big) G.hi = v - 1; else G.lo = v + 1;
   G.hist.push({ label, big });
@@ -476,7 +486,7 @@ async function guess() {
   SFX.cut();
   setMsg(`${S.mode === 'expr' ? label.split('=')[1] : v} ${big ? '太大了，再小一點 ↓' : '太小了，再大一點 ↑'}`);
   nextTurn(); drawTeams(); drawRange(big ? 'hi' : 'lo'); drawFuse(); drawScreen(); drawChips();
-  if (G.lo === G.hi) setTimeout(() => setMsg(`💀 只剩下 <span class="num">${G.lo}</span>…下一位只能猜它了！`, 'big'), 900);
+  if (G.lo === G.hi) setTimeout(() => setMsg(`🎯 只剩下 <span class="num">${G.lo}</span>…下一位一定猜中！`, 'big'), 900);
   else if ((G.hi - G.lo + 1) <= 5) setTimeout(() => setMsg(`⚠️ 只剩 ${G.hi - G.lo + 1} 個數字，好危險！`, 'big'), 900);
   updateBeat();
 }
@@ -488,7 +498,7 @@ function cutAnim(a, b, right) {
 function nextTurn(silent) {
   if (S.seat) G.seat = G.seat % S.seat + 1;
   if (G.teams.length) {
-    for (let k = 1; k <= G.teams.length; k++) { const j = (G.turn + k) % G.teams.length; if (G.teams[j].hearts > 0) { G.turn = j; break; } }
+    G.turn = (G.turn + 1) % G.teams.length;
   }
 }
 function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
@@ -513,33 +523,53 @@ function updateBeat() {
 function stopBeat() { clearTimeout(beatT); beatT = null; }
 
 // ================= 爆炸 =================
-function explode(label) {
-  G.over = true; stopBeat(); SFX.boom();
-  let who = '';
-  if (G.teams.length) { const t = G.teams[G.turn]; t.hearts--; who = `<span style="color:#fff3b0">${t.name}</span> 被炸了！${t.hearts > 0 ? '❤️ −1' : '💀 出局'}`; }
-  if (S.seat) who = (who ? who + '　' : '') + `${G.seat} 號 中獎！`;
-  if (!who) who = '被炸到了！';
-  $('boomT1').innerHTML = '碰！';
-  $('boomT2').innerHTML = `密碼就是 <span class="num">${G.secret}</span><br>${who}`;
-  $('boomOv').classList.add('show'); document.body.classList.add('shake'); setTimeout(() => document.body.classList.remove('shake'), 700);
-  for (let i = 0; i < 26; i++) {
-    const p = document.createElement('div'); p.className = 'piece'; p.textContent = ['💥', '🔥', '⭐', '💣', '✨'][i % 5];
-    p.style.left = '50%'; p.style.top = '45%'; const a = Math.random() * 6.28, r = 300 + Math.random() * 500;
-    p.style.setProperty('--x', Math.cos(a) * r + 'px'); p.style.setProperty('--y', Math.sin(a) * r + 'px'); p.style.setProperty('--rot', (Math.random() * 720 - 360) + 'deg');
-    document.body.appendChild(p); setTimeout(() => p.remove(), 1500);
+const ANIMALS = [['monkey', '🐵'], ['panda', '🐼'], ['frog', '🐸'], ['chick', '🐥']];
+let danceT = null, musicT = null;
+function startDance(box) {
+  box.innerHTML = '';
+  ANIMALS.forEach(([k, emo]) => {
+    const d = document.createElement('div'); d.className = 'dancer';
+    const im = new Image(); im.src = `img/dance_${k}_1.png`; im.alt = '';
+    im.onerror = () => { d.innerHTML = `<span class="emo">${emo}</span>`; };
+    d.appendChild(im); box.appendChild(d);
+  });
+  let f = 1; clearInterval(danceT);
+  danceT = setInterval(() => { f = 3 - f; box.querySelectorAll('img').forEach(im => im.src = im.src.replace(/_[12]\.png$/, `_${f}.png`)); }, 500);
+  // 跳舞音樂
+  const mel = [523, 659, 784, 659, 587, 698, 880, 698]; let n = 0; clearInterval(musicT);
+  musicT = setInterval(() => { tone(mel[n % 8], .22, 'triangle', .14); if (n % 2 === 0) tone(131, .12, 'sine', .4); n++; }, 250);
+  confetti(box.parentNode);
+}
+function stopDance() { clearInterval(danceT); clearInterval(musicT); }
+function confetti(host) {
+  for (let i = 0; i < 40; i++) {
+    const p = document.createElement('div'); p.className = 'confetti'; p.textContent = ['🎉', '🎊', '⭐', '✨', '🎈'][i % 5];
+    p.style.left = Math.random() * 100 + 'vw'; p.style.animationDuration = (2.2 + Math.random() * 2) + 's'; p.style.animationDelay = Math.random() * 1.2 + 's';
+    p.style.setProperty('--x', (Math.random() * 200 - 100) + 'px'); p.style.setProperty('--rot', (Math.random() * 720 - 360) + 'deg');
+    host.appendChild(p); setTimeout(() => p.remove(), 5000);
   }
-  G.hist.push({ label, big: false }); drawChips();
+}
+function victory(label) {
+  G.over = true; stopBeat(); SFX.win();
+  let who = '';
+  if (G.teams.length) { const t = G.teams[G.turn]; t.stars++; who = `<span style="color:${t.c}">${t.name}</span> 拿到一顆 ⭐！`; }
+  if (S.seat) who = (who ? who + '　' : '') + `${G.seat} 號猜中了！`;
+  if (!who) who = '猜中了！好厲害！';
+  $('boomT1').innerHTML = '🎉 拆彈成功！';
+  $('boomT2').innerHTML = `密碼就是 <span class="num">${G.secret}</span>　${who}`;
+  $('boomOv').classList.add('show'); startDance($('dancers1'));
+  G.hist.push({ label, big: false }); drawChips(); drawTeams();
 }
 $('againBtn').onclick = () => {
-  $('boomOv').classList.remove('show');
-  const alive = G.teams.filter(t => t.hearts > 0);
-  if (G.teams.length && alive.length <= 1) {
-    $('winT').textContent = alive.length ? `🏆 ${alive[0].name} 獲勝！` : '🏆 遊戲結束！';
-    $('winOv').classList.add('show'); SFX.win(); return;
+  $('boomOv').classList.remove('show'); stopDance();
+  const champ = G.teams.find(t => t.stars >= S.goal);
+  if (champ) {
+    $('winT').innerHTML = `🏆 <span style="color:${champ.c}">${champ.name}</span> 獲勝！`;
+    $('winOv').classList.add('show'); startDance($('dancers2')); return;
   }
-  nextTurn(); newGame(true); // 被炸的人不用再先猜
+  nextTurn(); newGame(true); // 猜中的人下一局不用先猜
 };
-$('winBtn').onclick = () => { $('winOv').classList.remove('show'); G = {}; newGame(false); };
+$('winBtn').onclick = () => { $('winOv').classList.remove('show'); stopDance(); G = {}; newGame(false); };
 
 // ================= 頂列按鈕 =================
 $('goBtn').onclick = guess;
@@ -569,7 +599,7 @@ function openSet() {
     seg('sRule', Object.entries(RULES), 'rule');
     seg('sTeams', [[0, '不分隊'], [2, '2 隊'], [3, '3 隊'], [4, '4 隊']], 'teams', drawSet);
     $('heartRow').style.display = T.teams ? '' : 'none';
-    seg('sHearts', [[1, '1'], [2, '2'], [3, '3'], [5, '5']], 'hearts');
+    seg('sHearts', [[1, '1'], [2, '2'], [3, '3'], [5, '5']], 'goal');
     seg('sSeat', [[0, '關'], [-1, '開']], 'seatOn', drawSet);
     $('sSeatN').style.display = T.seatOn ? '' : 'none';
   };
@@ -581,7 +611,7 @@ $('startBtn').onclick = () => {
   ac();
   const seatN = parseInt($('sSeatN').value, 10);
   if (T.seatOn && !(seatN >= 2)) { $('sSeatN').focus(); $('sSeatN').style.borderColor = 'var(--red)'; return; }
-  S = { max: T.max, mode: T.mode, rule: T.rule, teams: T.teams, hearts: T.hearts, seat: T.seatOn ? Math.min(seatN, 60) : 0 };
+  S = { max: T.max, mode: T.mode, rule: T.rule, teams: T.teams, goal: T.goal || 3, seat: T.seatOn ? Math.min(seatN, 60) : 0 };
   localStorage.setItem('pw_settings', JSON.stringify(S));
   $('setOv').classList.remove('show'); G = {}; newGame(false);
 };
