@@ -199,6 +199,19 @@ input.n{width:90px;font-size:20px;padding:6px 10px;border-radius:12px;border:2px
   .dancer img,.win .dancer img{height:min(20vh,38vw)}
   .win > img{height:22vh}
 }
+/* 玩法說明 */
+.help{flex-direction:column;background:var(--cream);padding:24px;overflow:auto}
+.help h2{margin:0 0 4px;font-size:clamp(36px,5vw,64px);color:var(--green);font-weight:900}
+.help .sub{font-size:clamp(18px,2vw,24px);color:var(--muted);font-weight:700;margin-bottom:18px}
+.hsteps{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(260px,90vw),1fr));gap:18px;width:min(1300px,96vw)}
+.hstep{background:#fff;border-radius:26px;padding:22px 20px;box-shadow:0 6px 20px rgba(36,80,60,.08);display:flex;flex-direction:column;align-items:center;text-align:center;gap:10px}
+.hstep .no{width:48px;height:48px;border-radius:50%;background:var(--green);color:#fff;font-family:Fredoka;font-size:26px;font-weight:700;display:flex;align-items:center;justify-content:center}
+.hstep .emo{font-size:clamp(46px,6vh,70px);line-height:1}
+.hstep .txt{font-size:clamp(20px,2.2vw,28px);font-weight:900;line-height:1.45}
+.hstep .txt b{color:var(--red)}
+.help .note{margin-top:16px;font-size:clamp(18px,2vw,24px);font-weight:700;color:var(--green2);text-align:center}
+.help .start{margin-top:18px}
+.help{position:fixed;inset:0;display:none;align-items:center;z-index:70}.help.show{display:flex}
 </style>
 </head>
 <body>
@@ -208,6 +221,7 @@ input.n{width:90px;font-size:20px;padding:6px 10px;border-radius:12px;border:2px
   <h1>終極密碼 💣</h1>
   <span class="mode-tag" id="modeTag"></span>
   <span class="sp"></span>
+  <button class="tbtn" id="helpBtn">❓ 玩法</button>
   <button class="tbtn hulk" id="hulkBtn">🟢 浩克挑戰</button>
   <button class="tbtn" id="soundBtn">🔊</button>
   <button class="tbtn" id="fsBtn">⛶ 全螢幕</button>
@@ -664,7 +678,7 @@ function hulkSecret() {
   $('hGo').onclick = () => go(parseInt($('hSec').value, 10));
   $('hSec').onkeydown = e => { if (e.key === 'Enter') go(parseInt($('hSec').value, 10)); };
   $('hRand').onclick = () => go(1 + Math.floor(Math.random() * H.max));
-  setTimeout(() => $('hSec').focus(), 50);
+  setTimeout(() => { const e = $('hSec'); if (e) e.focus(); }, 50);
 }
 function hulkPlay() {
   hulkSay('看我的！', 'hulk_think.png');
@@ -728,8 +742,26 @@ function hulkClose() { $('hulkOv').classList.remove('show'); updateBeat(); }
 $('hulkBtn').onclick = () => { ac(); hulkStart(); };
 
 // ================= 開始 =================
+// ================= 玩法說明（打開遊戲先看；右上角「❓ 玩法」隨時再看） =================
+// showHelp('遊戲名', '一句話', [[emoji, '說明'], ...], '補充', '按鈕字') → 按下按鈕才繼續
+function showHelp(title, sub, steps, note, btn = '知道了，開始玩！') {
+  let ov = $('helpOv');
+  if (!ov) { ov = document.createElement('div'); ov.id = 'helpOv'; ov.className = 'ov help'; document.body.appendChild(ov); }
+  ov.innerHTML = `<h2>${title}</h2><div class="sub">${sub}</div><div class="hsteps">${steps.map(([e, t], i) =>
+    `<div class="hstep"><div class="no">${i + 1}</div><div class="emo">${e}</div><div class="txt">${t}</div></div>`).join('')}</div>
+    ${note ? `<div class="note">${note}</div>` : ''}<button class="start" id="helpGo">${btn}</button>`;
+  ov.classList.add('show');
+  return new Promise(res => { $('helpGo').onclick = () => { ov.classList.remove('show'); res(); }; });
+}
+const HELP = ['💣 終極密碼怎麼玩', '電腦藏了一個密碼數字，大家一起把它找出來！', [
+  ['🤫', '電腦偷偷想好一個<br><b>密碼數字</b>'],
+  ['🙋', '大家<b>輪流猜</b>一個數字<br>老師幫忙輸入'],
+  ['↕️', '電腦會說「<b>太大</b>」或「<b>太小</b>」<br>範圍就會越來越小'],
+  ['🎉', '猜中密碼的人<br>就<b>拆彈成功</b>，動物出來跳舞！'],
+], '🧮 「算式猜法」要用算式來猜，例如 7×8；🟢「浩克挑戰」看浩克幾次猜中'];
+$('helpBtn').onclick = () => showHelp(...HELP, '知道了');
 newGame(false);
-openSet();
+showHelp(...HELP, '知道了，開始設定 ▶').then(openSet);
 window.addEventListener('resize', drawFuse);
 </script>
 </body>
